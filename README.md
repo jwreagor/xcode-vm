@@ -39,8 +39,11 @@ Vagrant.
 1. `git clone https://github.com/boxcutter/osx`
 1. Next, install our local dependencies.
 1. `brew bundle`
-1. `packer build -only=virtualbox-iso -var-file=osx1011.json osx.json`
 1. `sudo ./prepare_iso/prepare_iso.sh /Applications/Install\ OS\ X\ El\ Capitan.app dmg`
+1. `packer build -only=virtualbox-iso -var-file=osx1011.json osx.json`
 1. `vagrant box add ./box/virtualbox/osx1011-nocm-0.1.0.box --name osx1011`
+1. ?
+1. MASSIFY DA PROFITZ!
 
+**WARNING:** This ain't done.
 
