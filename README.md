@@ -1,27 +1,35 @@
 # xcode-vm
 
-This project was developed in order to automate the builds of iOS and OS X apps
-natively using Xcode but within a portable development VM. The result is a
-packaged OS X VM that includes everything developers use to build iOS and OS X
-apps natively on their desktop, except hosted from a remote, headless system.
+This project was started in order to automate the builds of iOS and OS X apps
+natively using Xcode but within a portable development VM.
 
-You'll need to use your personal, licensed copy of OS X in order to build this
-VM. Everything else will be automatically installed for you.
+Running OS X inside a VM is challenging. This project presents a start.
 
-We'll use Vagrant but the Packer driven process should support output images
-that run under many popular virtualization platforms (at least Virtualbox,
-VMWare, etc). That magic is left to your system/network admin.
+Currently, the VM includes...
 
-## Goal
+* Your licensed copy of OS X as a Vagrant base box.
+* OS X setup for headless development support.
 
-The result of this entire process includes...
+Things left to script...
 
-* Converting your licensed copy of OS X into a Vagrant base box.
-* Running OS X as a VM for development and CD/CI processes.
 * Scripted installation of Xcode and any other Apple dev dependency.
 * Included [Fastlane](https://github.com/fastlane/fastlane) for build workflows.
 * Included [Gym](https://github.com/fastlane/gym) for building and codesigning iOS apps.
 * Installation of [Homebrew](http://brew.sh) and [Cocoapods](https://cocoapods.org) for package management.
+* Utilization for processing CD/CI jobs.
+
+You'll need to use your personal, licensed copy of OS X in order to build this
+VM. Everything else will be automatically installed for you (or will be in
+time).
+
+This setup works with Vagrant since [boxcutter/osx][1] provides a well supported
+process and Packer template. Hopefully in the future we'll get the time to test
+running this VM inside __other__ environments.
+
+Officially, you can only run Apple's Mac OS X on Apple products. Anything else
+would make the ghost of Steve Jobs very sad.
+
+[1]: https://github.com/boxcutter/osx
 
 ## Requirements
 
@@ -30,20 +38,48 @@ The result of this entire process includes...
 
 ## Setup
 
-1. First, you'll need to make sure you've downloaded the latest version of OS X v10.11 (El Capitan).
-  - Download OS X from the App Store
-  - It'll end up in `/Applications/Install\ OS\ X\ El\ Capitan.app`
-1. Next, we'll need to create the OS X VM base image for configuring under
-Vagrant.
-  - `boxcutter/osx` on GitHub does all the work here.
-1. `git clone https://github.com/boxcutter/osx`
-1. Next, install our local dependencies.
-1. `brew bundle`
-1. `sudo ./prepare_iso/prepare_iso.sh /Applications/Install\ OS\ X\ El\ Capitan.app dmg`
-1. `packer build -only=virtualbox-iso -var-file=osx1011.json osx.json`
-1. `vagrant box add ./box/virtualbox/osx1011-nocm-0.1.0.box --name osx1011`
-1. ?
-1. MASSIFY DA PROFITZ!
+Start by cloning this project, note the use of `--recursive` for cloning git
+submodules as well.
+
+    $ git clone --recursive https://github.com/cheapRoc/xcode-vm
+    $ cd xcode-vm
+
+Install our local dependencies (because you have Homebrew preinstalled).
+
+    $ brew tap homebrew/bundle
+    $ brew bundle
+
+Make sure you've downloaded a copy of the OS X v10.11 El Capitan installation
+media (huge app containing the OS X disk image).
+
+- Download OS X from the App Store
+- It'll end up in `/Applications/Install OS X El Capitan.app`
+
+Next, we'll clone `boxcutter/osx` off of GitHub in order to help us turn our OS
+X installation media into a Vagrant base box.
+
+    $ git clone https://github.com/boxcutter/osx
+    $ cd osx
+
+From the instructions in `boxcutter/osx` we'll need to prepare the DMG as a
+patched ISO.
+
+    $ sudo ./prepare_iso/prepare_iso.sh -D DISABLE_REMOTE_MANAGEMENT /Applications/Install\ OS\ X\ El\ Capitan.app dmg
+
+Next, we'll use Packer to automate the generation of our Vagrant base image/box.
+
+    $ packer build -only=virtualbox-iso -var-file=osx1011.json osx.json
+
+Then add this base box to Vagrant, taking note of the name of our base
+`osx1011`.
+
+    $ vagrant box add ./box/virtualbox/osx1011-nocm-0.1.0.box --name osx1011
+
+Next, create your own `Vagrantfile` via `vagrant init`, or copy our
+`Vagrantfile` as your template.
+
+Vagrant machines running OS X will need extra resources in order to run. You'll
+probably want to mess around with VirtualBox settings until you've found the
+right set of resources for your virtualization host environment.
 
 **WARNING:** This ain't done.
-
