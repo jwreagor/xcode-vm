@@ -19,8 +19,8 @@ Things left to script...
 * Utilization for processing CD/CI jobs.
 
 You'll need to use your personal, licensed copy of OS X in order to build this
-VM. Everything else will be automatically installed for you (or will be in
-time).
+VM. We'll also walk you through downloading Xcode for your VM. Everything else
+should be automatically installed for you.
 
 This setup works with Vagrant since [boxcutter/osx][1] provides a well supported
 process and Packer template. Hopefully in the future we'll get the time to test
@@ -36,9 +36,9 @@ would make the ghost of Steve Jobs very sad.
 * Homebrew
 * w/ Brewfile support `brew tap homebrew/bundle`
 
-## Setup ##
+## Process ##
 
-### Clone this Project
+### Clone Project
 
 Start by cloning this project, note the use of `--recursive` for cloning git
 submodules as well.
@@ -70,7 +70,7 @@ into a proper Vagrant base box.
     $ git clone https://github.com/boxcutter/osx
     $ cd osx
 
-### Prepare the OS X Media
+### Prepare OS X Media
 
 From the instructions in `boxcutter/osx` we'll need to prepare the DMG as a
 patched ISO.
@@ -80,20 +80,20 @@ installation steps, configuring post-install hooks, and setting up accounts.
 
     $ sudo ./prepare_iso/prepare_iso.sh -D DISABLE_REMOTE_MANAGEMENT /Applications/Install\ OS\ X\ El\ Capitan.app dmg
 
-### Pack OS X into a Box
+### Pack Base Box
 
 Next, we'll use Packer to automate the generation of our Vagrant base image/box.
 
     $ packer build -only=virtualbox-iso -var-file=osx1011.json osx.json
 
-### Add OS X to Vagrant
+### Add to Vagrant
 
 Now we'll add our newly minted base box into Vagrant. Take note of the name
 we've given the box, `osx1011`.
 
     $ vagrant box add ./box/virtualbox/osx1011-nocm-0.1.0.box --name osx1011
 
-### Configure a Vagrantfile
+### Vagrantfile
 
 Next, create your own `Vagrantfile` via `vagrant init`, or copy our
 `Vagrantfile` as your template.
@@ -102,7 +102,7 @@ Vagrant machines running OS X will need extra resources in order to run. You'll
 probably want to mess around with VirtualBox settings until you've found the
 right set of resources for your virtualization host environment.
 
-### Vagrant Up
+### Run VM
 
 Now `vagrant up` and `vagrant ssh` in order to log in.
 
@@ -111,19 +111,14 @@ for now.
 
 ### Download Xcode
 
-Next we'll download Xcode.
-
-Like OS X, you'll need to manually download Xcode from Apple.
-
-Unlike OS X, we won't need the App Store if you've got an Apple Developer
-account.
-
-Click the following link to download the installation disk image. You'll be
-prompted to log into your Apple Developer account first.
+Next, you'll need to manually download Xcode from Apple. If you've got an Apple
+Developer account you can visit the link below. Click the following link and
+you'll be prompted to log into your Apple Developer account to begin the
+download.
 
 - [Download Xcode 7.2.1](https://developer.apple.com/services-account/download?path=/Developer_Tools/Xcode_7.2.1/Xcode_7.2.1.dmg)
 
-### Copy & Mount Xcode
+### Install Xcode
 
 Copy the downloaded file into our work directory and mount it into the VM's file system.
 
@@ -132,18 +127,28 @@ Copy the downloaded file into our work directory and mount it into the VM's file
      $ vagrant up
      $ vagrant ssh
      $ hdiutil attach -nobrowse /vagrant/Xcode_7.2.1.dmg
-     $ ls -la /Volumes/Xcode
+     $ cp -R /Volumes/Xcode/Xcode.app /Applications/Xcode.app
+     $ hdiutil detach /Volumes/Xcode
 
-If everything worked, you should have listed the newly mounted directory
-`/Volumes/Xcode`. This includes the Xcode installation files.
+If everything worked, you should have Xcode installed at the normal
+`/Applications/Xcode.app`.
 
-### Install Xcode
+### Install Xcode Server
 
-Next, we'll perform a headless install of Xcode and Xcode Server.
+Next, we'll perform a headless install of Xcode Server. This is just slightly
+tricky and hacking to find the simplest way possible is on-going.
+
+For now, just run the following to boot everything up...
+
+    $ /Applications/Xcode.app/Contents/Developer/usr/bin/xcscontrol -initialize
 
 **WARNING:** This ain't done...
 
 ## ...but we're close!
 
 So far, I've proven out that you can at least install Xcode Server and run it's
-wrapped services (CouchDB, Nginx, Redis).
+wrapped services (CouchDB, Nginx, Redis) without needing OS X Server. Further
+experimentation is required to see why OS X is a dependency within Apple's
+documentation. The $19.99 dependency may only be "Bonjour support" but even
+that's up for debate with the entire Xcode Server tool set now distributed
+within Xcode itself.
