@@ -149,6 +149,10 @@ For now, just run the following to boot everything up...
 So far, I've proven out that you can at least install Xcode Server and run it's
 wrapped services (CouchDB, Nginx, Redis) without needing OS X Server. Further
 experimentation is required to see why OS X is a dependency within Apple's
-documentation. The $19.99 dependency may only be "Bonjour support" but even
+documentation. <strike>The $19.99 dependency may only be "Bonjour support" but even
 that's up for debate with the entire Xcode Server tool set now distributed
-within Xcode itself.
+within Xcode itself.</strike>
+
+BTW, [Xcode Server Hacks](https://honzadvorsky.com/articles/2015-05-04-under-the-hood-of-xcode-server/) by [@czechboy0](https://twitter.com/czechboy0) is insanely handy...
+
+Yup, looks like [OS X Server is not a requirement](https://honzadvorsky.com/articles/2015-08-12-xcode_server_hacks_cli_xcscontrol/).
